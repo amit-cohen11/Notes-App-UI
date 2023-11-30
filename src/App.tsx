@@ -8,16 +8,24 @@ type Note = {
 };
 
 const App = () => {
+  let base_url_server = "";
   const [notes, setNotes] = useState<Note[]>([]);
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      base_url_server = "https://notes-app-server-hj12.onrender.com";
+    } else {
+      base_url_server = "http://localhost:8000";
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/notes");
+        const response = await fetch(`${base_url_server}/api/notes`);
         const notes: Note[] = await response.json();
         setNotes(notes);
       } catch (e) {
@@ -37,7 +45,7 @@ const App = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/notes", {
+      const response = await fetch(`${base_url_server}/api/notes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +73,7 @@ const App = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/notes/${selectedNote.id}`, {
+      const response = await fetch(`${base_url_server}/api/notes/${selectedNote.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +109,7 @@ const App = () => {
     e.stopPropagation();
 
     try {
-      const response = await fetch(`http://localhost:5000/api/notes/${noteId}`, {
+      const response = await fetch(`${base_url_server}/api/notes/${noteId}`, {
         method: "DELETE",
       });
       const updatedNote = notes.filter((note) => note.id !== noteId);
